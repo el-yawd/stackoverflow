@@ -1,18 +1,18 @@
 CREATE TABLE "answers" (
-	"answers_id" serial PRIMARY KEY NOT NULL,
+	"answers_id" integer PRIMARY KEY NOT NULL,
 	"body" text NOT NULL,
-	"creation_date" date NOT NULL,
+	"creation_date" date,
 	"score" integer DEFAULT 0,
-	"is_accepted" boolean NOT NULL,
+	"is_accepted" boolean,
 	"user_id" integer,
 	"question_id" integer
 );
 --> statement-breakpoint
 CREATE TABLE "comments" (
 	"comment_id" serial PRIMARY KEY NOT NULL,
-	"body" text NOT NULL,
-	"creation_date" date NOT NULL,
-	"link" text NOT NULL,
+	"body" text,
+	"creation_date" date,
+	"link" text,
 	"user_id" integer
 );
 --> statement-breakpoint
@@ -23,27 +23,27 @@ CREATE TABLE "question_tags" (
 );
 --> statement-breakpoint
 CREATE TABLE "questions" (
-	"question_id" serial PRIMARY KEY NOT NULL,
-	"title" text NOT NULL,
-	"is_answered" boolean NOT NULL,
+	"question_id" integer PRIMARY KEY NOT NULL,
+	"title" text,
+	"is_answered" boolean,
 	"answer_count" integer DEFAULT 0,
 	"view_count" integer DEFAULT 0,
-	"creation_date" date NOT NULL,
+	"creation_date" date,
 	"score" integer DEFAULT 0,
-	"user_id" integer NOT NULL
+	"user_id" integer
 );
 --> statement-breakpoint
 CREATE TABLE "tags" (
 	"tag_id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
-	"has_synonyms" boolean NOT NULL,
-	"is_moderator_only" boolean NOT NULL,
-	"is_required" boolean NOT NULL,
+	"has_synonyms" boolean,
+	"is_moderator_only" boolean,
+	"is_required" boolean,
 	"count" integer DEFAULT 0
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"user_id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"reputation" integer DEFAULT 0,
 	"link" text

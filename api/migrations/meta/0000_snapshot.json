@@ -1,5 +1,5 @@
 {
-  "id": "922e83b0-ef11-4103-9bd2-d74fa7f3abc8",
+  "id": "c82980bb-7473-4743-b4dd-3da2267cb6a9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "answers_id": {
           "name": "answers_id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },
@@ -24,7 +24,7 @@
           "name": "creation_date",
           "type": "date",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "score": {
           "name": "score",
@@ -37,7 +37,7 @@
           "name": "is_accepted",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "user_id": {
           "name": "user_id",
@@ -101,19 +101,19 @@
           "name": "body",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "creation_date": {
           "name": "creation_date",
           "type": "date",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "link": {
           "name": "link",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "user_id": {
           "name": "user_id",
@@ -210,7 +210,7 @@
       "columns": {
         "question_id": {
           "name": "question_id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },
@@ -218,13 +218,13 @@
           "name": "title",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "is_answered": {
           "name": "is_answered",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "answer_count": {
           "name": "answer_count",
@@ -244,7 +244,7 @@
           "name": "creation_date",
           "type": "date",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "score": {
           "name": "score",
@@ -257,7 +257,7 @@
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
@@ -302,19 +302,19 @@
           "name": "has_synonyms",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "is_moderator_only": {
           "name": "is_moderator_only",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "is_required": {
           "name": "is_required",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "count": {
           "name": "count",
@@ -338,7 +338,7 @@
       "columns": {
         "user_id": {
           "name": "user_id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },

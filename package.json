@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
-    "@types/pg": "^8.15.2",
+    "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.31.1",
     "tsx": "^4.19.4",
     "typescript": "^5.2.2",

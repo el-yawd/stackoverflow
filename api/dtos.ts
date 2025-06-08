@@ -11,6 +11,16 @@ export interface QuestionDTO {
     owner: OwnerDTO;
 }
 
+export interface AnswerDTO {
+    answer_id: number;
+    body: string;
+    creation_date: string;
+    score: number | null;
+    is_accepted: boolean;
+    question_id: number | null;
+    owner: OwnerDTO;
+}
+
 export interface OwnerDTO {
     user_id: number;
     reputation: number;
