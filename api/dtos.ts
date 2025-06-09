@@ -11,6 +11,14 @@ export interface QuestionDTO {
   owner: OwnerDTO;
 }
 
+export interface TagsDTO {
+  name: string;
+  count: number;
+  is_required: boolean;
+  is_moderator_only: boolean;
+  has_synonyms: boolean;
+}
+
 export interface AnswerDTO {
   answer_id: number;
   body: string;

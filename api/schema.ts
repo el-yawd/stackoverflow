@@ -134,8 +134,6 @@ export const questionTags = pgTable(
   {
     question_id: integer().references(() => questions.question_id),
     tag_id: integer().references(() => tags.tag_id),
-    name: text(),
-    count: integer().default(0),
   },
   (table) => [primaryKey({ columns: [table.question_id, table.tag_id] })],
 );

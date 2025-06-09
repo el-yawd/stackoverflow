@@ -4,10 +4,12 @@ import {
   Answer,
   Comment,
   Question,
+  Tag,
   User,
   answers,
   comments,
   questions,
+  tags,
   users,
 } from "./schema";
 
@@ -46,6 +48,15 @@ export const getUsers = api(
   { method: "GET", expose: true, path: "/users" },
   async (): Promise<Response<User>> => {
     const results: User[] = await orm.select().from(users);
+
+    return { data: results };
+  },
+);
+
+export const getTags = api(
+  { method: "GET", expose: true, path: "/tags" },
+  async (): Promise<Response<Tag>> => {
+    const results: Tag[] = await orm.select().from(tags);
 
     return { data: results };
   },

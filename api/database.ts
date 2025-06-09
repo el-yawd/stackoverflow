@@ -8,12 +8,19 @@ import {
   Answer,
   comments,
   Comment,
+  tags,
 } from "./schema";
 import { sql } from "drizzle-orm/sql";
 import log from "encore.dev/log";
-import { APIResponse, QuestionDTO, AnswerDTO, CommentDTO } from "./dtos";
+import {
+  APIResponse,
+  QuestionDTO,
+  AnswerDTO,
+  CommentDTO,
+  TagsDTO,
+} from "./dtos";
 
-const db = new SQLDatabase("agora_vai_39", {
+const db = new SQLDatabase("agora_vai_45", {
   migrations: {
     path: "migrations",
     source: "drizzle",
@@ -27,8 +34,14 @@ let questions_map = new Set<number>();
 let answers_list: Answer[] = [];
 let questions_list: Question[] = [];
 
+type QuestionTags = {
+  question_id: number;
+  tag_name: string;
+};
+
 async function loadQuestionsData() {
   let questions_ids: (number | null)[] = [];
+  let questions_tags: QuestionTags[] = [];
 
   try {
     // Check if we already have data
@@ -74,6 +87,12 @@ async function loadQuestionsData() {
 
         questions_ids.push(item.question_id);
         questions_map.add(item.question_id);
+        item.tags.forEach((tag) => {
+          questions_tags.push({
+            question_id: item.question_id,
+            tag_name: tag,
+          });
+        });
 
         questions_list.push({
           question_id: item.question_id,
@@ -96,6 +115,7 @@ async function loadQuestionsData() {
 
     let questions_ids_formatted = questions_ids.filter((id) => id).join(";");
 
+    log.info("Fetching questions from Stack Exchange API");
     let res = await fetch(
       `https://api.stackexchange.com/2.3/questions/${questions_ids_formatted}/comments?site=stackoverflow&pagesize=100&filter=withbody`,
     );
@@ -136,6 +156,43 @@ async function loadQuestionsData() {
 
     await orm.insert(comments).values(comments_list as Comment[]);
 
+    function chunkArray<T>(array: T[], size: number): T[][] {
+      const result: T[][] = [];
+      for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+      }
+      return result;
+    }
+
+    log.info("Fetching tags from Stack Exchange API");
+
+    const uniqueTags = Array.from(
+      new Set(questions_tags.map((item) => item.tag_name)),
+    );
+    const tagChunks = chunkArray(uniqueTags, 30);
+
+    const allTagsRaw: TagsDTO[] = [];
+
+    for (const chunk of tagChunks) {
+      const tagNames = chunk.join(";").trim();
+
+      const tagRes = await fetch(
+        `https://api.stackexchange.com/2.3/tags/${tagNames}/info?site=stackoverflow`,
+      );
+
+      if (!tagRes.ok) {
+        log.error(
+          `Failed to fetch tags: ${tagNames} | Status: ${tagRes.status}`,
+        );
+        continue;
+      }
+
+      const data = (await tagRes.json()) as APIResponse<TagsDTO>;
+      allTagsRaw.push(...data.items);
+    }
+
+    log.info("Inserting tags into database");
+    await orm.insert(tags).values(allTagsRaw);
     log.info(
       `Successfully loaded ${data.items.length} questions from Stack Exchange API`,
     );
