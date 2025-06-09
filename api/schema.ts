@@ -16,7 +16,12 @@ export const users = pgTable("users", {
   link: text(),
 });
 
-export type User = typeof users.$inferSelect;
+export interface User {
+  user_id: number | null;
+  name: string | null;
+  reputation: number | null;
+  link: string | null;
+}
 
 export const questions = pgTable("questions", {
   question_id: integer().primaryKey(),
@@ -77,24 +82,35 @@ export const answersRelations = relations(answers, ({ one, many }) => ({
 }));
 
 export const comments = pgTable("comments", {
-  comment_id: serial().primaryKey(),
+  comment_id: integer().primaryKey(),
   body: text(),
   creation_date: date(),
-  link: text(), // TODO: Check if it's valid link
   user_id: integer().references(() => users.user_id),
+  answer_id: integer().references(() => answers.answers_id),
+  question_id: integer().references(() => questions.question_id),
 });
 
 export interface Comment {
   comment_id: number;
-  body: string;
-  creation_date: string;
+  body: string | null;
+  creation_date: string | null;
   user_id: number | null;
+  answer_id: number | null;
+  question_id: number | null;
 }
 
 export const commentsRelations = relations(comments, ({ one }) => ({
   user: one(users, {
     fields: [comments.user_id],
     references: [users.user_id],
+  }),
+  answer: one(answers, {
+    fields: [comments.answer_id],
+    references: [answers.answers_id],
+  }),
+  question: one(questions, {
+    fields: [comments.question_id],
+    references: [questions.question_id],
   }),
 }));
 
@@ -107,13 +123,19 @@ export const tags = pgTable("tags", {
   count: integer().default(0),
 });
 
-export type Tag = typeof tags.$inferSelect;
+export interface Tag {
+  tag_id: number | null;
+  name: string | null;
+  count: number | null;
+}
 
 export const questionTags = pgTable(
   "question_tags",
   {
     question_id: integer().references(() => questions.question_id),
     tag_id: integer().references(() => tags.tag_id),
+    name: text(),
+    count: integer().default(0),
   },
   (table) => [primaryKey({ columns: [table.question_id, table.tag_id] })],
 );

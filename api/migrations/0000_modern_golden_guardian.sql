@@ -9,16 +9,19 @@ CREATE TABLE "answers" (
 );
 --> statement-breakpoint
 CREATE TABLE "comments" (
-	"comment_id" serial PRIMARY KEY NOT NULL,
+	"comment_id" integer PRIMARY KEY NOT NULL,
 	"body" text,
 	"creation_date" date,
-	"link" text,
-	"user_id" integer
+	"user_id" integer,
+	"answer_id" integer,
+	"question_id" integer
 );
 --> statement-breakpoint
 CREATE TABLE "question_tags" (
 	"question_id" integer,
 	"tag_id" integer,
+	"name" text,
+	"count" integer DEFAULT 0,
 	CONSTRAINT "question_tags_question_id_tag_id_pk" PRIMARY KEY("question_id","tag_id")
 );
 --> statement-breakpoint
@@ -52,6 +55,8 @@ CREATE TABLE "users" (
 ALTER TABLE "answers" ADD CONSTRAINT "answers_user_id_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "answers" ADD CONSTRAINT "answers_question_id_questions_question_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("question_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "comments" ADD CONSTRAINT "comments_user_id_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "comments" ADD CONSTRAINT "comments_answer_id_answers_answers_id_fk" FOREIGN KEY ("answer_id") REFERENCES "public"."answers"("answers_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "comments" ADD CONSTRAINT "comments_question_id_questions_question_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("question_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "question_tags" ADD CONSTRAINT "question_tags_question_id_questions_question_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("question_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "question_tags" ADD CONSTRAINT "question_tags_tag_id_tags_tag_id_fk" FOREIGN KEY ("tag_id") REFERENCES "public"."tags"("tag_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "questions" ADD CONSTRAINT "questions_user_id_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id") ON DELETE no action ON UPDATE no action;

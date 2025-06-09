@@ -1,5 +1,5 @@
 {
-  "id": "c82980bb-7473-4743-b4dd-3da2267cb6a9",
+  "id": "3f5e5bd6-aed2-4cd6-acda-aaeccefd67bc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -93,7 +93,7 @@
       "columns": {
         "comment_id": {
           "name": "comment_id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },
@@ -109,14 +109,20 @@
           "primaryKey": false,
           "notNull": false
         },
-        "link": {
-          "name": "link",
-          "type": "text",
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "user_id": {
-          "name": "user_id",
+        "answer_id": {
+          "name": "answer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "question_id": {
+          "name": "question_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -133,6 +139,32 @@
           ],
           "columnsTo": [
             "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "comments_answer_id_answers_answers_id_fk": {
+          "name": "comments_answer_id_answers_answers_id_fk",
+          "tableFrom": "comments",
+          "tableTo": "answers",
+          "columnsFrom": [
+            "answer_id"
+          ],
+          "columnsTo": [
+            "answers_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "comments_question_id_questions_question_id_fk": {
+          "name": "comments_question_id_questions_question_id_fk",
+          "tableFrom": "comments",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "question_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -159,6 +191,19 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         }
       },
       "indexes": {},
