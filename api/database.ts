@@ -10,7 +10,6 @@ import {
   Comment,
   tags,
 } from "./schema";
-import { sql } from "drizzle-orm/sql";
 import log from "encore.dev/log";
 import {
   APIResponse,
@@ -20,7 +19,7 @@ import {
   TagsDTO,
 } from "./dtos";
 
-const db = new SQLDatabase("agora_vai_45", {
+const db = new SQLDatabase("stackoverflow", {
   migrations: {
     path: "migrations",
     source: "drizzle",
@@ -31,6 +30,7 @@ const orm = drizzle(db.connectionString);
 
 let users_map = new Set<number>();
 let questions_map = new Set<number>();
+let comments_map = new Set<number>();
 let answers_list: Answer[] = [];
 let questions_list: Question[] = [];
 
@@ -39,25 +39,15 @@ type QuestionTags = {
   tag_name: string;
 };
 
-async function loadQuestionsData() {
+async function loadQuestionsData(page: number) {
   let questions_ids: (number | null)[] = [];
   let questions_tags: QuestionTags[] = [];
 
   try {
-    // Check if we already have data
-    const existingCount = await orm
-      .select({ count: sql<number>`count(*)` })
-      .from(questions);
-
-    if (existingCount[0].count > 0) {
-      log.info("Data already loaded, skipping initial load");
-      return;
-    }
-
     log.info("Starting initial data load from Questions");
 
     const response = await fetch(
-      "https://api.stackexchange.com/2.3/questions?site=stackoverflow&pagesize=100",
+      `https://api.stackexchange.com/2.3/questions?site=stackoverflow&pagesize=100&page=${page}`,
     );
 
     if (!response.ok) {
@@ -138,7 +128,8 @@ async function loadQuestionsData() {
     }
 
     let comments_list = res_comments.map((item) => {
-      if (item.comment_id) {
+      if (item.comment_id && !comments_map.has(item.comment_id)) {
+        comments_map.add(item.comment_id);
         return {
           comment_id: item.comment_id,
           // Here we're sure that post_id is a question
@@ -169,7 +160,7 @@ async function loadQuestionsData() {
     const uniqueTags = Array.from(
       new Set(questions_tags.map((item) => item.tag_name)),
     );
-    const tagChunks = chunkArray(uniqueTags, 30);
+    const tagChunks = chunkArray(uniqueTags, 40);
 
     const allTagsRaw: TagsDTO[] = [];
 
@@ -202,23 +193,13 @@ async function loadQuestionsData() {
   }
 }
 
-async function loadAnswersData() {
+async function loadAnswersData(page: number) {
   let answers_ids: (number | null)[] = [];
   try {
-    // Check if we already have data
-    const existingCount = await orm
-      .select({ count: sql<number>`count(*)` })
-      .from(answers);
-
-    if (existingCount[0].count > 0) {
-      log.info("Data already loaded, skipping initial load");
-      return;
-    }
-
     log.info("Starting initial data load from Answers");
 
     let response = await fetch(
-      "https://api.stackexchange.com/2.3/answers?site=stackoverflow&pagesize=100&filter=withbody",
+      `https://api.stackexchange.com/2.3/answers?site=stackoverflow&pagesize=100&filter=withbody&page=${page}`,
     );
 
     if (!response.ok) {
@@ -297,9 +278,10 @@ async function loadAnswersData() {
       }
     }
 
-    log.info("Loading messages");
+    log.info("Loading comments");
     let comments_list = res_comments.map((item) => {
-      if (item.comment_id) {
+      if (item.comment_id && !comments_map.has(item.comment_id)) {
+        comments_map.add(item.comment_id);
         return {
           comment_id: item.comment_id,
           question_id: null,
@@ -315,7 +297,7 @@ async function loadAnswersData() {
       }
     });
 
-    log.info("Inserting messages");
+    log.info("Inserting comments");
     await orm.insert(comments).values(comments_list as Comment[]);
 
     log.info(
@@ -328,7 +310,9 @@ async function loadAnswersData() {
 }
 
 // Load data before exporting the orm
-await loadQuestionsData();
-await loadAnswersData();
+for (let page = 1; page <= 20; page++) {
+  await loadQuestionsData(page);
+  await loadAnswersData(page);
+}
 
 export { orm };
