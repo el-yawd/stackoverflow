@@ -19,7 +19,7 @@ import {
   TagsDTO,
 } from "./dtos";
 
-const db = new SQLDatabase("stackoverflow", {
+const db = new SQLDatabase("test12347", {
   migrations: {
     path: "migrations",
     source: "drizzle",
@@ -145,7 +145,10 @@ async function loadQuestionsData(page: number) {
       }
     });
 
-    await orm.insert(comments).values(comments_list as Comment[]);
+    if (comments_list) {
+      log.warn(comments_list);
+      await orm.insert(comments).values(comments_list as Comment[]);
+    }
 
     function chunkArray<T>(array: T[], size: number): T[][] {
       const result: T[][] = [];
@@ -164,7 +167,9 @@ async function loadQuestionsData(page: number) {
 
     const allTagsRaw: TagsDTO[] = [];
 
+    let i = 0;
     for (const chunk of tagChunks) {
+      log.info(`Fetching tags ${i++}/${tagChunks.length}`);
       const tagNames = chunk.join(";").trim();
 
       const tagRes = await fetch(
@@ -182,6 +187,7 @@ async function loadQuestionsData(page: number) {
       allTagsRaw.push(...data.items);
     }
 
+    if (!tags) return;
     log.info("Inserting tags into database");
     await orm.insert(tags).values(allTagsRaw);
     log.info(
@@ -251,8 +257,10 @@ async function loadAnswersData(page: number) {
         });
       }
 
-      log.debug(`Prepared ${answers_list.length} answers for insertion`);
-      await tx.insert(answers).values(answers_list).onConflictDoNothing();
+      if (answers_list) {
+        log.debug(`Prepared ${answers_list.length} answers for insertion`);
+        await tx.insert(answers).values(answers_list).onConflictDoNothing();
+      }
     });
 
     let questions_ids_formatted = answers_ids.filter((id) => id).join(";");
@@ -298,6 +306,7 @@ async function loadAnswersData(page: number) {
     });
 
     log.info("Inserting comments");
+    if (!comments_list || comments_list.length === 0) return;
     await orm.insert(comments).values(comments_list as Comment[]);
 
     log.info(
