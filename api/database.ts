@@ -19,7 +19,7 @@ import {
   TagsDTO,
 } from "./dtos";
 
-const db = new SQLDatabase("test12347", {
+const db = new SQLDatabase("stackoverflow", {
   migrations: {
     path: "migrations",
     source: "drizzle",
@@ -62,7 +62,7 @@ async function loadQuestionsData(page: number) {
           log.warn(`Skipping question with missing owner: ${item.question_id}`);
           continue;
         }
-        if (!users_map.has(item.owner.user_id)) {
+        if (item.owner.user_id && !users_map.has(item.owner.user_id)) {
           await tx
             .insert(users)
             .values({
@@ -113,7 +113,7 @@ async function loadQuestionsData(page: number) {
     let res_comments = ((await res.json()) as APIResponse<CommentDTO>).items;
 
     for (const item of res_comments) {
-      if (!users_map.has(item.owner.user_id)) {
+      if (item.owner.user_id && !users_map.has(item.owner.user_id)) {
         await orm
           .insert(users)
           .values({
@@ -224,7 +224,7 @@ async function loadAnswersData(page: number) {
           log.warn(`Skipping answer with missing owner: ${item.answer_id}`);
           continue;
         }
-        if (!users_map.has(item.owner.user_id)) {
+        if (item.owner.user_id && !users_map.has(item.owner.user_id)) {
           await tx
             .insert(users)
             .values({
@@ -272,7 +272,7 @@ async function loadAnswersData(page: number) {
     let res_comments = ((await res.json()) as APIResponse<CommentDTO>).items;
 
     for (const item of res_comments) {
-      if (!users_map.has(item.owner.user_id)) {
+      if (item.owner.user_id && !users_map.has(item.owner.user_id)) {
         await orm
           .insert(users)
           .values({
@@ -319,7 +319,7 @@ async function loadAnswersData(page: number) {
 }
 
 // Load data before exporting the orm
-for (let page = 1; page <= 20; page++) {
+for (let page = 1; page <= 30; page++) {
   await loadQuestionsData(page);
   await loadAnswersData(page);
 }
